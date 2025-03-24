@@ -1,0 +1,6 @@
+{
+    "watch": ["contracts"],
+    "ext": "sol",
+    "exec": "npx hardhat compile"
+  }
+  
