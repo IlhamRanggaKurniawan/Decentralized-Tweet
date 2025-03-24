@@ -10,14 +10,24 @@ const TweetInput = () => {
     const { contract } = useContractStore()
     const { addTweet } = useTweetStore()
     const [tweet, setTweet] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (!contract) return
-        if (tweet.trim() === "") return
+        try {
+            e.preventDefault()
+            setLoading(true)
+            if (!contract) return
+            if (tweet.trim() === "") return
 
-        const tx = await contract.createTweat(tweet)
-        await tx.wait()
+            const tx = await contract.createTweat(tweet)
+            await tx.wait()
+
+            setTweet("")
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -30,7 +40,7 @@ const TweetInput = () => {
         return () => {
             contract.removeAllListeners("tweatCreated");
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [contract])
 
     return (
@@ -39,7 +49,7 @@ const TweetInput = () => {
                 <h2 className='font-semibold text-lg'>What's happening?</h2>
                 <Input placeholder='Share your thoughts....' disabled={!contract} onChange={(e) => setTweet(e.target.value)} value={tweet} />
                 <div className='w-full flex justify-end'>
-                    <Button size={'lg'} disabled={!contract}>
+                    <Button size={'lg'} disabled={!contract || loading}>
                         <Send />
                         Send
                     </Button>
